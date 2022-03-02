@@ -60,6 +60,7 @@ class AWSConnection(object):
     this against AWS services.
 
     """
+
     def __init__(self, *args, **kwargs):
         super(AWSConnection, self).__init__(*args, **kwargs)
         self._original_response_cls = self.response_class
@@ -82,6 +83,8 @@ class AWSConnection(object):
         self.response_class = self._original_response_cls
 
     def _send_request(self, method, url, body, headers, *args, **kwargs):
+        if headers.get('Content-Length') == '0':
+            headers.pop('Expect', None)
         self._response_received = False
         if headers.get('Expect', b'') == b'100-continue':
             self._expect_header_set = True
@@ -336,6 +339,7 @@ class AWSRequestPreparer(object):
 
         This class does not prepare the method, auth or cookies.
     """
+
     def prepare(self, original):
         method = original.method
         url = self._prepare_url(original)
@@ -468,6 +472,7 @@ class AWSPreparedRequest(object):
     :ivar body: The HTTP body.
     :ivar stream_output: If the response for this request should be streamed.
     """
+
     def __init__(self, method, url, headers, body, stream_output):
         self.method = method
         self.url = url
@@ -575,6 +580,7 @@ class _HeaderKey(object):
 
 class HeadersDict(MutableMapping):
     """A case-insenseitive dictionary to represent HTTP headers. """
+
     def __init__(self, *args, **kwargs):
         self._dict = {}
         self.update(*args, **kwargs)
